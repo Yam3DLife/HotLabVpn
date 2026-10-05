@@ -1,1 +1,58 @@
+name: Generate User Subscriptions
 
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'users.json'
+      - 'generate.py'
+      - 'keys/**'
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Create folders
+        run: |
+          mkdir -p keys/vip keys/lite keys/trial subs
+          echo "=== Папки созданы ==="
+          ls -la
+
+      - name: Show keys folder
+        run: |
+          echo "=== Содержимое keys/vip ==="
+          ls -la keys/vip/ || echo "пусто"
+
+      - name: Run generation script
+        run: python generate.py
+
+      - name: Show subs folder
+        run: |
+          echo "=== Содержимое subs ==="
+          ls -la subs/
+
+      - name: Commit and push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add subs/ users.json
+          if git diff --cached --quiet; then
+            echo "Нет изменений для коммита"
+          else
+            git commit -m "Auto-update subscriptions [skip ci]"
+            git push origin main --force
+          fi
