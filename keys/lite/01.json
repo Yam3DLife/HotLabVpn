@@ -1,0 +1,268 @@
+{
+  "dns": {
+    "servers": [
+      "77.88.8.8",
+      "77.88.8.1"
+    ],
+    "queryStrategy": "UseIPv4"
+  },
+  "routing": {
+    "rules": [
+      {
+        "port": 443,
+        "type": "field",
+        "domain": [
+          "domain:cloudflare-dns.com",
+          "domain:one.one.one.one",
+          "domain:dns.google",
+          "domain:quad9.net"
+        ],
+        "network": "udp",
+        "balancerTag": "Balancer"
+      },
+      {
+        "ip": [
+          "1.1.1.1/32",
+          "1.0.0.1/32",
+          "8.8.8.8/32",
+          "8.8.4.4/32",
+          "9.9.9.9/32",
+          "149.112.112.112/32"
+        ],
+        "port": 443,
+        "type": "field",
+        "network": "udp",
+        "balancerTag": "Balancer"
+      },
+      {
+        "port": 443,
+        "type": "field",
+        "network": "udp",
+        "outboundTag": "BLOCK"
+      },
+      {
+        "type": "field",
+        "protocol": [
+          "bittorrent"
+        ],
+        "outboundTag": "BLOCK"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "domain:localhost"
+        ],
+        "outboundTag": "DIRECT"
+      },
+      {
+        "ip": [
+          "127.0.0.0/8",
+          "169.254.0.0/16",
+          "224.0.0.0/4",
+          "213.219.212.4/32",
+          "255.255.255.255/32"
+        ],
+        "type": "field",
+        "outboundTag": "DIRECT"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "domain:rtbcdn.ru",
+          "domain:rutube.ru",
+          "domain:max.ru",
+          "domain:rutubelist.ru"
+        ],
+        "outboundTag": "DIRECT"
+      },
+      {
+        "type": "field",
+        "network": "udp,tcp",
+        "balancerTag": "Balancer"
+      }
+    ],
+    "balancers": [
+      {
+        "tag": "Balancer",
+        "selector": [
+          "Auto1"
+        ],
+        "strategy": {
+          "type": "leastLoad",
+          "settings": {
+            "maxRTT": "6s",
+            "expected": 5,
+            "baselines": [
+              "6s"
+            ],
+            "tolerance": 0.34
+          }
+        },
+        "fallbackTag": "Fall"
+      }
+    ],
+    "domainMatcher": "hybrid",
+    "domainStrategy": "IPIfNonMatch"
+  },
+  "inbounds": [
+    {
+      "tag": "socks",
+      "port": 10808,
+      "listen": "127.0.0.1",
+      "protocol": "socks",
+      "settings": {
+        "udp": true,
+        "auth": "noauth"
+      },
+      "sniffing": {
+        "enabled": true,
+        "routeOnly": true,
+        "ipsExcluded": [
+          "1.1.1.1/32",
+          "1.0.0.1/32",
+          "8.8.8.8/32",
+          "8.8.4.4/32",
+          "9.9.9.9/32",
+          "149.112.112.112/32"
+        ],
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ]
+      }
+    },
+    {
+      "tag": "http",
+      "port": 10809,
+      "listen": "127.0.0.1",
+      "protocol": "http",
+      "settings": {
+        "allowTransparent": false
+      },
+      "sniffing": {
+        "enabled": true,
+        "routeOnly": true,
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ]
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "Auto1",
+      "protocol": "trojan",
+      "settings": {
+        "servers": [
+          {
+            "address": "84.23.52.175",
+            "port": 443,
+            "password": "AzhF81Qkv7mwqb38VAh_Nks6HzSxnpvy"
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "tcpSettings": {
+          "header": {
+            "type": "none"
+          }
+        },
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "z8.nnmm.me",
+          "enableSessionResumption": false,
+          "fingerprint": "firefox",
+          "alpn": [
+            "h2",
+            "http/1.1"
+          ]
+        },
+        "finalmask": {
+          "tcp": [
+            {
+              "type": "fragment",
+              "settings": {
+                "delays": [
+                  "1-2"
+                ],
+                "lengths": [
+                  "100-200"
+                ],
+                "packets": "tlshello",
+                "maxSplit": "3"
+              }
+            }
+          ]
+        }
+      },
+      "mux": {
+        "enabled": true,
+        "concurrency": 8,
+        "xudpConcurrency": -1
+      }
+    },
+    {
+      "tag": "Fall",
+      "protocol": "trojan",
+      "settings": {
+        "servers": [
+          {
+            "address": "95.163.232.207",
+            "port": 443,
+            "password": "AzhF81Qkv7mwqb38VAh_Nks6HzSxnpvy"
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "tcpSettings": {
+          "header": {
+            "type": "none"
+          }
+        },
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "z1.nnmm.me",
+          "enableSessionResumption": false,
+          "fingerprint": "firefox",
+          "alpn": [
+            "h2",
+            "http/1.1"
+          ]
+        }
+      },
+      "mux": {
+        "enabled": true,
+        "concurrency": 8,
+        "xudpConcurrency": -1
+      }
+    },
+    {
+      "tag": "DIRECT",
+      "protocol": "freedom"
+    },
+    {
+      "tag": "BLOCK",
+      "protocol": "blackhole"
+    }
+  ],
+  "burstObservatory": {
+    "pingConfig": {
+      "timeout": "6s",
+      "interval": "30s",
+      "sampling": 3,
+      "httpMethod": "GET",
+      "destination": "https://www.gstatic.com/generate_204",
+      "connectivity": ""
+    },
+    "subjectSelector": [
+      "Auto1",
+      "Fall"
+    ]
+  },
+  "remarks": "🇪🇺Обход² 🐌(МТС)"
+}

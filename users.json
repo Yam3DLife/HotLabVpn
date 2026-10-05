@@ -1,0 +1,20 @@
+{
+  "user_vip": {
+    "status": "active",
+    "plan": "vip",
+    "expire_date": "2026-12-01",
+    "traffic_limit_gb": 0
+  },
+  "user_lite": {
+    "status": "active",
+    "plan": "lite",
+    "expire_date": "2026-11-15",
+    "traffic_limit_gb": 50
+  },
+  "user_trial": {
+    "status": "active",
+    "plan": "trial",
+    "expire_date": "2026-10-10",
+    "traffic_limit_gb": 5
+  }
+}

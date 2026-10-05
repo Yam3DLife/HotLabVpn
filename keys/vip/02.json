@@ -1,0 +1,166 @@
+{
+  "dns": {
+    "servers": [
+      "1.1.1.1",
+      "1.0.0.1"
+    ],
+    "queryStrategy": "UseIPv4"
+  },
+  "routing": {
+    "rules": [
+      {
+        "port": 443,
+        "type": "field",
+        "domain": [
+          "domain:cloudflare-dns.com",
+          "domain:one.one.one.one",
+          "domain:dns.google",
+          "domain:quad9.net"
+        ],
+        "network": "udp",
+        "outboundTag": "proxy"
+      },
+      {
+        "ip": [
+          "1.1.1.1/32",
+          "1.0.0.1/32",
+          "8.8.8.8/32",
+          "8.8.4.4/32",
+          "9.9.9.9/32",
+          "149.112.112.112/32"
+        ],
+        "port": 443,
+        "type": "field",
+        "network": "udp",
+        "outboundTag": "proxy"
+      },
+      {
+        "port": 443,
+        "type": "field",
+        "network": "udp",
+        "outboundTag": "BLOCK"
+      },
+      {
+        "type": "field",
+        "protocol": [
+          "bittorrent"
+        ],
+        "outboundTag": "BLOCK"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "domain:localhost"
+        ],
+        "outboundTag": "DIRECT"
+      },
+      {
+        "ip": [
+          "127.0.0.0/8",
+          "169.254.0.0/16",
+          "224.0.0.0/4",
+          "255.255.255.255/32"
+        ],
+        "type": "field",
+        "network": "tcp,udp",
+        "outboundTag": "DIRECT"
+      }
+    ],
+    "domainMatcher": "hybrid",
+    "domainStrategy": "IPOnDemand"
+  },
+  "inbounds": [
+    {
+      "tag": "socks",
+      "port": 10808,
+      "listen": "127.0.0.1",
+      "protocol": "socks",
+      "settings": {
+        "udp": true,
+        "auth": "noauth"
+      },
+      "sniffing": {
+        "enabled": true,
+        "routeOnly": false,
+        "ipsExcluded": [
+          "1.1.1.1/32",
+          "1.0.0.1/32",
+          "8.8.8.8/32",
+          "8.8.4.4/32",
+          "9.9.9.9/32",
+          "149.112.112.112/32"
+        ],
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ]
+      }
+    },
+    {
+      "tag": "http",
+      "port": 10809,
+      "listen": "127.0.0.1",
+      "protocol": "http",
+      "settings": {
+        "allowTransparent": false
+      },
+      "sniffing": {
+        "enabled": true,
+        "routeOnly": false,
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ]
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "proxy",
+      "protocol": "trojan",
+      "settings": {
+        "servers": [
+          {
+            "address": "91.240.87.108",
+            "port": 443,
+            "password": "AzhF81Qkv7mwqb38VAh_Nks6HzSxnpvy"
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "tcpSettings": {
+          "header": {
+            "type": "none"
+          }
+        },
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "z40.tgnn.live",
+          "enableSessionResumption": false,
+          "fingerprint": "firefox",
+          "alpn": [
+            "h2",
+            "http/1.1"
+          ]
+        }
+      },
+      "mux": {
+        "enabled": true,
+        "concurrency": 8,
+        "xudpConcurrency": -1
+      }
+    },
+    {
+      "tag": "DIRECT",
+      "protocol": "freedom"
+    },
+    {
+      "tag": "BLOCK",
+      "protocol": "blackhole"
+    }
+  ],
+  "remarks": "🇷🇺 Обход⁶ 🐌🐌 (Резерв)"
+}
